@@ -1,0 +1,59 @@
+// Setup canvas
+const canvas = document.createElement("canvas");
+document.body.appendChild(canvas);
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// Grass properties
+const grassHeight = 100;
+const grassCount = 200;
+let scrollOffset = 0;
+
+// Grass blade class
+class GrassBlade {
+  constructor(x) {
+    this.x = x;
+    this.height = grassHeight + Math.random() * 20;
+    this.sway = 0;
+  }
+
+  update(wind) {
+    this.sway = Math.sin(wind + this.x * 0.1) * 5; // Sway with wind
+  }
+
+  draw() {
+    ctx.beginPath();
+    ctx.moveTo(this.x, canvas.height - scrollOffset);
+    ctx.lineTo(this.x + this.sway, canvas.height - this.height - scrollOffset);
+    ctx.strokeStyle = "#4CAF50";
+    ctx.stroke();
+  }
+}
+
+// Initialize grass
+const grass = [];
+for (let i = 0; i < grassCount; i++) {
+  grass.push(new GrassBlade(i * (canvas.width / grassCount)));
+}
+
+// Animation loop
+let windTime = 0;
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  windTime += 0.05;
+
+  grass.forEach(blade => {
+    blade.update(windTime);
+    blade.draw();
+  });
+
+  requestAnimationFrame(animate);
+}
+
+// Scroll event
+window.addEventListener("scroll", () => {
+  scrollOffset = window.scrollY % grassHeight; // Loop seamlessly
+});
+
+animate();
