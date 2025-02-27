@@ -1,59 +1,92 @@
-// Setup canvas
-const canvas = document.createElement("canvas");
-document.body.appendChild(canvas);
-const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Copy HTML Example</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    #code-block {
+      background-color: #f4f4f4;
+      padding: 10px;
+      border: 1px solid #ddd;
+      white-space: pre-wrap;
+      font-family: monospace;
+    }
+    #copy-button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    #copy-button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>Copy HTML Code Example</h1>
+  <p>Click the button below to copy the HTML code to your clipboard.</p>
 
-// Grass properties
-const grassHeight = 100;
-const grassCount = 200;
-let scrollOffset = 0;
+  <!-- The code block to be copied (replace this with your actual code) -->
+  <pre id="code-block">
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Sample&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Hello, World!&lt;/h1&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+  </pre>
 
-// Grass blade class
-class GrassBlade {
-  constructor(x) {
-    this.x = x;
-    this.height = grassHeight + Math.random() * 20;
-    this.sway = 0;
-  }
+  <!-- Copy button -->
+  <button id="copy-button">Copy HTML</button>
 
-  update(wind) {
-    this.sway = Math.sin(wind + this.x * 0.1) * 5; // Sway with wind
-  }
+  <script>
+    // Get the button and code block elements
+    const copyButton = document.getElementById("copy-button");
+    const codeBlock = document.getElementById("code-block");
 
-  draw() {
-    ctx.beginPath();
-    ctx.moveTo(this.x, canvas.height - scrollOffset);
-    ctx.lineTo(this.x + this.sway, canvas.height - this.height - scrollOffset);
-    ctx.strokeStyle = "#4CAF50";
-    ctx.stroke();
-  }
-}
+    // Add click event listener to the button
+    copyButton.addEventListener("click", () => {
+      // Get the text content of the code block
+      const codeText = codeBlock.textContent;
 
-// Initialize grass
-const grass = [];
-for (let i = 0; i < grassCount; i++) {
-  grass.push(new GrassBlade(i * (canvas.width / grassCount)));
-}
+      // Use the Clipboard API to copy the text
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(codeText).then(() => {
+          alert("HTML code copied to clipboard!");
+        }).catch(err => {
+          console.error("Failed to copy: ", err);
+          alert("Failed to copy HTML code.");
+        });
+      } else {
+        // Fallback for older browsers
+        fallbackCopyTextToClipboard(codeText);
+      }
+    });
 
-// Animation loop
-let windTime = 0;
-function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  windTime += 0.05;
-
-  grass.forEach(blade => {
-    blade.update(windTime);
-    blade.draw();
-  });
-
-  requestAnimationFrame(animate);
-}
-
-// Scroll event
-window.addEventListener("scroll", () => {
-  scrollOffset = window.scrollY % grassHeight; // Loop seamlessly
-});
-
-animate();
+    // Fallback function for older browsers
+    function fallbackCopyTextToClipboard(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand("copy");
+        alert("HTML code copied to clipboard!");
+      } catch (err) {
+        console.error("Fallback: Oops, unable to copy", err);
+        alert("Failed to copy HTML code.");
+      }
+      document.body.removeChild(textArea);
+    }
+  </script>
+</body>
+</html>
